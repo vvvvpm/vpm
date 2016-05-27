@@ -3,7 +3,7 @@ GitClone("https://github.com/microdee/vvvv-Message.git", Pack.TempDir);
 BuildSolution(
     2013,
     Pack.TempDir + "\\src\\vvvv-Message.sln", "Release|" + VVVV.Architecture,
-    restorenugets = true
+    restorenugets: true
 );
 
 CopyDir(
