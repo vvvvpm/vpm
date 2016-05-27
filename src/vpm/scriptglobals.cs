@@ -144,7 +144,7 @@ namespace vpm
             VpmUtils.CloneGit(srcrepo, dstdir, submodules, branch);
         }
 
-        public void BuildSolution(int vsversion, string slnpath, string args, bool restorenugets = false)
+        public void BuildSolution(int vsversion, string slnpath, string args, bool restorenugets)
         {
             Console.WriteLine("Building " + slnpath);
             var devenv = VSVersion.VSDict[vsversion].DevenvExe;
