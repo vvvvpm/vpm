@@ -117,6 +117,11 @@ namespace vpm
         public static bool IsAliasExisting(string name)
         {
             var packsdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVExe) + "\\packs";
+            if (!Directory.Exists(packsdir))
+            {
+                Directory.CreateDirectory(packsdir);
+                return false;
+            }
             foreach (var d in Directory.GetDirectories(packsdir))
             {
                 var cname = Path.GetFullPath(d)

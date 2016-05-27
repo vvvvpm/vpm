@@ -144,10 +144,25 @@ namespace vpm
             VpmUtils.CloneGit(srcrepo, dstdir, submodules, branch);
         }
 
-        public void BuildSolution(int vsversion, string slnpath, string args)
+        public void BuildSolution(int vsversion, string slnpath, string args, bool restorenugets = false)
         {
             Console.WriteLine("Building " + slnpath);
             var devenv = VSVersion.VSDict[vsversion].DevenvExe;
+            if (restorenugets)
+            {
+                var nugetexe = Path.GetDirectoryName(VPM.Exe) + "\\NuGet.exe";
+                var nugetp = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = nugetexe,
+                        Arguments = "restore \"" + slnpath + "\" -Verbosity detailed"
+                    }
+                };
+                Console.WriteLine("Restoring NuGet packages");
+                nugetp.Start();
+                nugetp.WaitForExit();
+            }
             var devenvp = new Process
             {
                 StartInfo = new ProcessStartInfo

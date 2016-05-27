@@ -201,6 +201,9 @@
   </Target>
   <Import Project="packages\Fody.1.29.3\build\dotnet\Fody.targets" Condition="Exists('packages\Fody.1.29.3\build\dotnet\Fody.targets')" />
   <Import Project="packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets" Condition="Exists('packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(SolutionDir)\packages\NuGet.CommandLine.3.4.3\tools\NuGet.exe $(OutDir)\NuGet.exe</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
