@@ -146,8 +146,6 @@ namespace vpm
 
         public void BuildSolution(int vsversion, string slnpath, string args, bool restorenugets)
         {
-            Console.WriteLine("Building " + slnpath);
-            var devenv = VSVersion.VSDict[vsversion].DevenvExe;
             if (restorenugets)
             {
                 var nugetexe = Path.GetDirectoryName(VPM.Exe) + "\\NuGet.exe";
@@ -163,6 +161,13 @@ namespace vpm
                 nugetp.Start();
                 nugetp.WaitForExit();
             }
+            BuildSolution(vsversion, slnpath, args);
+        }
+
+        public void BuildSolution(int vsversion, string slnpath, string args)
+        {
+            Console.WriteLine("Building " + slnpath);
+            var devenv = VSVersion.VSDict[vsversion].DevenvExe;
             var devenvp = new Process
             {
                 StartInfo = new ProcessStartInfo

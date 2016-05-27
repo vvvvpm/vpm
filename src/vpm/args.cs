@@ -103,15 +103,19 @@ namespace vpm
 
     public class VpmArgs
     {
+        [ArgDescription("Specify VVVV exe location. If not specified vpm will attempt to read location from Windows Registry.")]
         [ArgShortcut("-vvvv")]
         [IsVVVVExe]
         public string VVVVExe { get; set; }
 
+        [ArgDescription("The .vpack file specifying pack to be installed. Note: default first argument without \"-p\" is this argument.")]
+        [ArgPosition(0)]
         [ArgRequired(PromptIfMissing = true)]
         [ArgShortcut("-p")]
         [IsVPack]
         public string VPackFile { get; set; }
 
+        [ArgDescription("Not asking questions.")]
         [ArgShortcut("-q")]
         public bool Quiet { get; set; }
     }
