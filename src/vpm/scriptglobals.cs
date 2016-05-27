@@ -173,13 +173,34 @@ namespace vpm
                 VpmUtils.ConsoleClearLine();
                 Console.WriteLine("Progress: {0} / {1}, {2}%", args.BytesReceived, args.TotalBytesToReceive, args.ProgressPercentage);
             };
-            client.DownloadFileTaskAsync(src, dst).RunSynchronously();
+            var dltask = client.DownloadFileTaskAsync(src, dst);
+            dltask.Wait();
             Console.WriteLine("Done");
+        }
+
+        private Stopwatch ArchiveTimeout;
+        private IArchive OpenArchive(string src)
+        {
+            if (ArchiveTimeout == null)
+            {
+                ArchiveTimeout = new Stopwatch();
+                ArchiveTimeout.Start();
+            }
+            try
+            {
+                return ArchiveFactory.Open(src);
+            }
+            catch (Exception)
+            {
+                if (ArchiveTimeout.Elapsed.TotalSeconds < 10)
+                    return OpenArchive(src);
+                throw;
+            }
         }
 
         public void Extract(string src, string dstdir)
         {
-            var archive = ArchiveFactory.Open(src);
+            var archive = OpenArchive(src);
             Console.WriteLine("Extracting " + src);
             Console.WriteLine("To " + dstdir);
             Console.WriteLine("");
