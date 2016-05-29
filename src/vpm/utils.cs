@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Net;
+using System.Reflection;
 using System.Xml;
 using LibGit2Sharp;
+using Microsoft.Win32;
 using PowerArgs;
 
 namespace vpm
@@ -190,7 +194,34 @@ namespace vpm
             */
 
             var doc = new XmlDocument();
-            doc.LoadXml(File.ReadAllText(xmlfile));
+            string xmltext = "";
+            string url = "";
+            if (xmlfile.StartsWith("vpm://", true, CultureInfo.InvariantCulture))
+                url = xmlfile.Replace("vpm://", "http://");
+
+            if (xmlfile.StartsWith("vpms://", true, CultureInfo.InvariantCulture))
+                url = xmlfile.Replace("vpms://", "https://");
+            if (url != "")
+            {
+                var client = new WebClient();
+                try
+                {
+                    var stream = client.OpenRead(url);
+                    var reader = new StreamReader(stream);
+                    xmltext = reader.ReadToEnd();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Problem with URL " + xmlfile);
+                    throw;
+                }
+            }
+            else
+            {
+                xmltext = File.ReadAllText(xmlfile);
+            }
+
+            doc.LoadXml(xmltext);
             return doc;
         }
 
@@ -309,6 +340,17 @@ namespace vpm
             if (!string.IsNullOrEmpty(branch)) options.BranchName = branch;
             Repository.Clone(srcrepo, dstdir, options);
             Console.WriteLine("Done");
+        }
+
+        public static void RegisterURIScheme(string scheme)
+        {
+            var key = Registry.ClassesRoot.CreateSubKey(scheme);
+            key.SetValue("", "URL:" + scheme + " Protocol");
+            key.SetValue("URL Protocol", "");
+            var icon = key.CreateSubKey("DefaultIcon");
+            icon.SetValue("", Assembly.GetExecutingAssembly().Location);
+            var command = key.CreateSubKey("shell\\open\\command");
+            command.SetValue("", Assembly.GetExecutingAssembly().Location + " %1 %2 %3 %4 %5 %6 %7 %8 %9");
         }
     }
 }

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Threading;
 using Microsoft.Win32;
 using PowerArgs;
 
@@ -46,21 +50,72 @@ namespace vpm
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class IsVPack : ArgValidator
     {
-        public override void Validate(string name, ref string arg)
+        public override bool ImplementsValidateAlways => true;
+        public override void ValidateAlways(CommandLineArgument argument, ref string arg)
         {
+            if (string.IsNullOrEmpty(arg))
+            {
+                if (VpmUtils.PromptYayOrNay(
+                        "Do you want to make this vpm instance to open vpm:// or vpms:// url's for downloading .vpack files?"))
+                {
+
+                    try
+                    {
+                        VpmUtils.RegisterURIScheme("vpm");
+                        VpmUtils.RegisterURIScheme("vpms");
+                        Console.WriteLine("Registered protocols successfully");
+                    }
+                    catch (Exception)
+                    {
+                        if (VpmUtils.PromptYayOrNay("Can't write to registry. Retry as Admin?"))
+                        {
+                            try
+                            {
+                                var exeName = Process.GetCurrentProcess().MainModule.FileName;
+                                var startInfo = new ProcessStartInfo(exeName)
+                                {
+                                    Arguments = "-RegisterVpmUri",
+                                    Verb = "runas"
+                                };
+                                Process.Start(startInfo);
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine("Error occured while trying to run elevated process.");
+                                Thread.Sleep(5000);
+                            }
+                            Environment.Exit(0);
+                        }
+                    }
+                }
+                Console.WriteLine("Alright, enjoy!");
+                Thread.Sleep(5000);
+                Environment.Exit(0);
+            }
             arg = arg.Trim('"');
+            if (arg.StartsWith("vpm://", true, CultureInfo.InvariantCulture))
+            {
+                if (arg.EndsWith(".vpack", true, CultureInfo.InvariantCulture))
+                {
+                    return;
+                }
+            }
+            if (arg.StartsWith("vpms://", true, CultureInfo.InvariantCulture))
+            {
+                if (arg.EndsWith(".vpack", true, CultureInfo.InvariantCulture))
+                {
+                    return;
+                }
+            }
             if (File.Exists(arg))
             {
-                if (!arg.EndsWith(".vpack", true, null))
+                if (arg.EndsWith(".vpack", true, CultureInfo.InvariantCulture))
                 {
-                    throw new ValidationArgException("Specified file is not '.vpack'");
+                    arg = Path.GetFullPath(arg);
+                    return;
                 }
-                arg = Path.GetFullPath(arg);
             }
-            else
-            {
-                throw new ValidationArgException("Pack file not Found.");
-            }
+            throw new ValidationArgException("File not found or file is not .vpack");
         }
     }
 
@@ -108,9 +163,11 @@ namespace vpm
         [IsVVVVExe]
         public string VVVVExe { get; set; }
 
-        [ArgDescription("The .vpack file specifying pack to be installed. Note: default first argument without \"-p\" is this argument.")]
+        [ArgDescription(
+@"The .vpack file specifying pack to be installed.
+Note: default first argument without -p is this argument.
+vpm(s):// URL's are coming here too")]
         [ArgPosition(0)]
-        [ArgRequired(PromptIfMissing = true)]
         [ArgShortcut("-p")]
         [IsVPack]
         public string VPackFile { get; set; }
