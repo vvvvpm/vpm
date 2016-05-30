@@ -168,6 +168,6 @@ For example a vpm link to mp.dx is
 ```xml
 <a href="vpms://raw.githubusercontent.com/microdee/mp.dx/master/p.vpack">mp.dx</a>
 ```
-or [mp.dx](vpms://raw.githubusercontent.com/microdee/mp.dx/master/p.vpack) so you can try it right away ;)
+Apparently uri schemes other than http(s) is not working with github flavored markdown so I can't demonstrate here but you can get the point. :(
 
 License is MIT aka "do whatever you want with it, no fucks are given"
