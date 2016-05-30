@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,6 +38,11 @@ namespace vpm
             Directory.CreateDirectory(TempDir);
 
             var xmldoc = srcxml;
+            if (source.StartsWith("vpm://", true, CultureInfo.InvariantCulture) ||
+                source.StartsWith("vpms://", true, CultureInfo.InvariantCulture))
+            {
+                xmldoc = VpmUtils.ParseAndValidateXmlFile(source);
+            }
 
             if (CloneFromGit(true))
             {
