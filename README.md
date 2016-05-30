@@ -168,6 +168,6 @@ For example a vpm link to mp.dx is
 ```xml
 <a href="vpms://raw.githubusercontent.com/microdee/mp.dx/master/p.vpack">mp.dx</a>
 ```
-or <a href="vpms://raw.githubusercontent.com/microdee/mp.dx/master/p.vpack">mp.dx</a> so you can try it right away ;)
+or [mp.dx](vpms://raw.githubusercontent.com/microdee/mp.dx/master/p.vpack) so you can try it right away ;)
 
 License is MIT aka "do whatever you want with it, no fucks are given"
