@@ -6,6 +6,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Net;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 using LibGit2Sharp;
 using Microsoft.Win32;
