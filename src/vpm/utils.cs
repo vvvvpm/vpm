@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Management.Automation;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml;
 using LibGit2Sharp;
 using Microsoft.Win32;
@@ -14,6 +17,36 @@ using PowerArgs;
 
 namespace vpm
 {
+    public class UpdateTimer
+    {
+        private static UpdateTimer _instance;
+        public static UpdateTimer Instance => _instance ?? (_instance = new UpdateTimer());
+
+        private Stopwatch Stopwatch = new Stopwatch();
+
+        public long msLimit = 17;
+
+        public UpdateTimer()
+        {
+            Stopwatch.Start();
+        }
+        public void Reset()
+        {
+            Stopwatch.Restart();
+        }
+
+        public bool Update()
+        {
+            if (ms > msLimit)
+            {
+                Reset();
+                return true;
+            }
+            return false;
+        }
+
+        public long ms => Stopwatch.ElapsedMilliseconds;
+    }
     public enum MachineType
     {
         Native = 0, x86 = 0x014c, Itanium = 0x0200, x64 = 0x8664
@@ -23,10 +56,9 @@ namespace vpm
     {
         public static void ConsoleClearLine()
         {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentLineCursor);
+            Console.SetCursorPosition(0, Math.Max(Console.CursorTop - 1, 0));
+            Console.Write(new String(' ', Console.BufferWidth));
+            Console.SetCursorPosition(0, Math.Max(Console.CursorTop - 1, 0));
         }
         public static MachineType GetMachineType(string fileName)
         {
@@ -48,7 +80,32 @@ namespace vpm
             var tempdir = VpmConfig.Instance.VpmTempDir;
             Console.WriteLine("Removing vpm temp folder.");
             File.SetAttributes(tempdir, FileAttributes.Normal);
-            DeleteDirectory(tempdir, true);
+            PatientDeleteDirectory(tempdir, true, 0, 3);
+        }
+
+        public static void PatientDeleteDirectory(string path, bool recursive, int currtry, int maxtry)
+        {
+            try
+            {
+                DeleteDirectory(path, recursive);
+            }
+            catch (Exception e)
+            {
+                if (e is IOException || e is UnauthorizedAccessException)
+                {
+                    if (currtry < maxtry)
+                    {
+                        Console.WriteLine("It seems to be a file is not released yet. Waiting 5 seconds");
+                        Thread.Sleep(5000);
+                        PatientDeleteDirectory(path, recursive, currtry + 1, maxtry);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Files didn't unlock in {0}. You might have to delete it yourself.");
+                    }
+                }
+                else throw e;
+            }
         }
 
         public static void DeleteDirectory(string path, bool recursive)
@@ -305,7 +362,7 @@ namespace vpm
             {
                 RepositoryOperationStarting = context =>
                 {
-                    Console.WriteLine("Cloning: " + context.RepositoryPath);
+                    Console.WriteLine("Cloning: " + context.RepositoryPath + " / " + branch);
                     if (!string.IsNullOrEmpty(context.SubmoduleName))
                     {
                         Console.WriteLine("From submodule " + context.SubmoduleName);
@@ -324,16 +381,22 @@ namespace vpm
                 },
                 OnCheckoutProgress = (path, steps, totalSteps) =>
                 {
-                    ConsoleClearLine();
-                    Console.Write("Checking out: {0} / {1}", steps, totalSteps);
+                    if (UpdateTimer.Instance.Update())
+                    {
+                        ConsoleClearLine();
+                        Console.WriteLine("Checking out: {0} / {1}", steps, totalSteps);
+                    }
                 },
                 OnTransferProgress = progress =>
                 {
-                    ConsoleClearLine();
-                    Console.Write("Recieving: {0} / {1} ({2} kb)",
-                        progress.IndexedObjects,
-                        progress.TotalObjects,
-                        progress.ReceivedBytes/1024);
+                    if (UpdateTimer.Instance.Update())
+                    {
+                        ConsoleClearLine();
+                        Console.WriteLine("Recieving: {0} / {1} ({2} kb)",
+                            progress.IndexedObjects,
+                            progress.TotalObjects,
+                            progress.ReceivedBytes/1024);
+                    }
                     return true;
                 },
                 RecurseSubmodules = submodules

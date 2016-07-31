@@ -10,7 +10,7 @@ namespace vpm
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("vpm 1.0 at your service!");
+            Console.WriteLine("vpm 1.0.2 at your service!");
             try
             {
                 Args.Parse<VpmArgs>(args);
@@ -23,6 +23,7 @@ namespace vpm
             }
             try
             {
+                UpdateTimer.Instance.Reset();
                 Console.WriteLine("Parsing input Pack");
                 var vpxml = VpmUtils.ParseAndValidateXmlFile(Args.GetAmbientArgs<VpmArgs>().VPackFile);
 

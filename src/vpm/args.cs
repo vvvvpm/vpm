@@ -34,7 +34,6 @@ namespace vpm
             }
             else
             {
-                Console.WriteLine("An instance of VVVV was not specified, looking for one in registry.");
                 var regkey = (string)Registry.GetValue("HKEY_CLASSES_ROOT\\VVVV\\Shell\\Open\\Command", "", "");
                 if (regkey == "")
                 {
@@ -42,6 +41,7 @@ namespace vpm
                         "VVVV was not found in registry.\nPlease register a VVVV with setup.exe or specify vvvv.exe with the '-vvvv' argument.");
                 }
                 var exepath = regkey.Split(' ')[0].Replace("\"", "");
+                Console.WriteLine("Found a VVVV in registry.");
                 arg = Path.GetFullPath(exepath);
             }
         }
@@ -56,7 +56,8 @@ namespace vpm
             if (string.IsNullOrEmpty(arg))
             {
                 if (VpmUtils.PromptYayOrNay(
-                        "Do you want to make this vpm instance to open vpm:// or vpms:// url's for downloading .vpack files?"))
+                        "Do you want to make this vpm instance to open vpm:// or vpms:// url's for downloading .vpack files?",
+                        "It makes life so much easier."))
                 {
 
                     try
@@ -119,6 +120,7 @@ namespace vpm
         }
     }
 
+    /*
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class QuietValidator : ArgValidator
     {
@@ -155,6 +157,7 @@ namespace vpm
             }
         }
     }
+    */
 
     public class VpmArgs
     {

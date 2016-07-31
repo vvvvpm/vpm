@@ -130,7 +130,11 @@ namespace vpm
             {
                 if (o is FileInfo)
                 {
-                    Console.WriteLine("File: " + ((FileInfo) o).Name);
+                    if (UpdateTimer.Instance.Update())
+                    {
+                        VpmUtils.ConsoleClearLine();
+                        Console.WriteLine("File: " + ((FileInfo)o).Name);
+                    }
                 }
                 if (o is DirectoryInfo)
                 {
@@ -190,8 +194,11 @@ namespace vpm
             var client = new WebClient();
             client.DownloadProgressChanged += (sender, args) =>
             {
-                VpmUtils.ConsoleClearLine();
-                Console.WriteLine("Progress: {0} / {1}, {2}%", args.BytesReceived, args.TotalBytesToReceive, args.ProgressPercentage);
+                if (UpdateTimer.Instance.Update())
+                {
+                    VpmUtils.ConsoleClearLine();
+                    Console.WriteLine("Progress: {0} / {1}, {2}%", args.BytesReceived, args.TotalBytesToReceive, args.ProgressPercentage);
+                }
             };
             var dltask = client.DownloadFileTaskAsync(src, dst);
             dltask.Wait();
@@ -226,10 +233,14 @@ namespace vpm
             Console.WriteLine("");
             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
             {
-                VpmUtils.ConsoleClearLine();
-                Console.WriteLine(entry.Key);
+                if (UpdateTimer.Instance.Update())
+                {
+                    VpmUtils.ConsoleClearLine();
+                    Console.WriteLine(entry.Key);
+                }
                 entry.WriteToDirectory(dstdir, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
             }
+            archive.Dispose();
             Console.WriteLine("Done");
         }
     }
