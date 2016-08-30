@@ -95,8 +95,8 @@ namespace vpm
     }
     public class VpmVVVV
     {
-        public string Dir => Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVExe);
-        public string Exe => Args.GetAmbientArgs<VpmArgs>().VVVVExe;
+        public string Dir => Args.GetAmbientArgs<VpmArgs>().VVVVDir;
+        public string Exe => Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "vvvv.exe");
         public string Architecture => VpmConfig.Instance.VVVVArcitecture;
     }
 
@@ -122,6 +122,7 @@ namespace vpm
 
         public void CopyDir(string srcdir, string dstdir, string[] ignore = null, string[] match = null)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Copy folder:");
             Console.WriteLine("From: " + srcdir);
             Console.WriteLine("To: " + dstdir);
@@ -133,14 +134,17 @@ namespace vpm
                     if (UpdateTimer.Instance.Update())
                     {
                         VpmUtils.ConsoleClearLine();
+                        Console.ForegroundColor = ConsoleColor.Gray;
                         Console.WriteLine("File: " + ((FileInfo)o).Name);
                     }
                 }
                 if (o is DirectoryInfo)
                 {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine("Dir: " + ((DirectoryInfo) o).FullName);
                 }
             });
+            Console.ResetColor();
         }
 
         public void GitClone(string srcrepo, string dstdir, bool submodules = false, string branch = "")
@@ -170,6 +174,7 @@ namespace vpm
 
         public void BuildSolution(int vsversion, string slnpath, string args)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Building " + slnpath);
             var devenv = VSVersion.VSDict[vsversion].DevenvExe;
             var devenvp = new Process
@@ -181,6 +186,7 @@ namespace vpm
                     CreateNoWindow = true
                 }
             };
+            Console.ResetColor();
             Console.WriteLine("Starting devenv.exe");
             devenvp.Start();
             devenvp.WaitForExit();
@@ -188,10 +194,12 @@ namespace vpm
 
         public void Download(string src, string dst)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Downloading " + src);
             Console.WriteLine("To " + dst);
             Console.WriteLine("");
             var client = new WebClient();
+            Console.ForegroundColor = ConsoleColor.Gray;
             client.DownloadProgressChanged += (sender, args) =>
             {
                 if (UpdateTimer.Instance.Update())
@@ -202,6 +210,7 @@ namespace vpm
             };
             var dltask = client.DownloadFileTaskAsync(src, dst);
             dltask.Wait();
+            Console.ResetColor();
             Console.WriteLine("Done");
         }
 
@@ -228,9 +237,11 @@ namespace vpm
         public void Extract(string src, string dstdir)
         {
             var archive = OpenArchive(src);
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Extracting " + src);
             Console.WriteLine("To " + dstdir);
             Console.WriteLine("");
+            Console.ForegroundColor = ConsoleColor.Gray;
             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
             {
                 if (UpdateTimer.Instance.Update())
@@ -241,6 +252,7 @@ namespace vpm
                 entry.WriteToDirectory(dstdir, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
             }
             archive.Dispose();
+            Console.ResetColor();
             Console.WriteLine("Done");
         }
     }

@@ -4,13 +4,14 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using BrendanGrant.Helpers.FileAssociation;
 using Microsoft.Win32;
 using PowerArgs;
 
 namespace vpm
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
-    public class IsVVVVExe : ArgValidator
+    public class VVVVPathValidator : ArgValidator
     {
         public override bool ImplementsValidateAlways => true;
 
@@ -19,30 +20,42 @@ namespace vpm
             if (arg != null)
             {
                 arg = arg.Trim('"');
-                if (File.Exists(arg))
+                arg = Path.GetFullPath(arg);
+                if (Directory.Exists(arg) || File.Exists(arg))
                 {
-                    if (!arg.EndsWith("vvvv.exe", true, null))
+                    var dstattr = File.GetAttributes(arg);
+                    if (!dstattr.HasFlag(FileAttributes.Directory))
                     {
-                        throw new ValidationArgException("Specified file is not an instance of vvvv.");
+                        arg = Path.GetDirectoryName(arg);
                     }
-                    arg = Path.GetFullPath(arg);
                 }
                 else
                 {
-                    throw new ValidationArgException("VVVV not Found.");
+                    Console.WriteLine("Destination directory doesn't exist. Creating it.");
+                    try
+                    {
+                        Directory.CreateDirectory(arg);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Couldn't do that.");
+                        throw;
+                    }
                 }
             }
             else
             {
                 var regkey = (string)Registry.GetValue("HKEY_CLASSES_ROOT\\VVVV\\Shell\\Open\\Command", "", "");
-                if (regkey == "")
+                if (string.IsNullOrWhiteSpace(regkey))
                 {
-                    throw new ValidationArgException(
-                        "VVVV was not found in registry.\nPlease register a VVVV with setup.exe or specify vvvv.exe with the '-vvvv' argument.");
+                    arg = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 }
-                var exepath = regkey.Split(' ')[0].Replace("\"", "");
-                Console.WriteLine("Found a VVVV in registry.");
-                arg = Path.GetFullPath(exepath);
+                else
+                {
+                    var exepath = regkey.Split(' ')[0].Replace("\"", "");
+                    Console.WriteLine("Found a VVVV in registry.");
+                    arg = Path.GetDirectoryName(Path.GetFullPath(exepath));
+                }
             }
         }
     }
@@ -55,15 +68,38 @@ namespace vpm
         {
             if (string.IsNullOrEmpty(arg))
             {
+                var exeName = Assembly.GetExecutingAssembly().Location;
                 if (VpmUtils.PromptYayOrNay(
-                        "Do you want to make this vpm instance to open vpm:// or vpms:// url's for downloading .vpack files?",
+                        "Do you want to register this vpm instance? (Open vpm:// or vpms:// url's and open .vpack files)",
                         "It makes life so much easier."))
                 {
-
                     try
                     {
                         VpmUtils.RegisterURIScheme("vpm");
                         VpmUtils.RegisterURIScheme("vpms");
+
+                        var fai = new FileAssociationInfo(".vpack");
+                        if (!fai.Exists)
+                        {
+                            fai.Create("vpm");
+                            fai.ContentType = "text/vpack";
+                        }
+                        var pai = new ProgramAssociationInfo(fai.ProgID);
+                        var progverb = new ProgramVerb("Open", exeName + " %1");
+                        if (pai.Exists)
+                        {
+                            foreach (var pv in pai.Verbs)
+                            {
+                                pai.RemoveVerb(pv);
+                            }
+                            pai.AddVerb(progverb);
+                        }
+                        else
+                        {
+                            pai.Create("VVVV Package Definition", progverb);
+                            pai.DefaultIcon = new ProgramIcon(exeName);
+                        }
+
                         Console.WriteLine("Registered protocols successfully");
                     }
                     catch (Exception)
@@ -72,7 +108,6 @@ namespace vpm
                         {
                             try
                             {
-                                var exeName = Process.GetCurrentProcess().MainModule.FileName;
                                 var startInfo = new ProcessStartInfo(exeName)
                                 {
                                     Arguments = "-RegisterVpmUri",
@@ -89,6 +124,7 @@ namespace vpm
                         }
                     }
                 }
+
                 Console.WriteLine("Alright, enjoy!");
                 Thread.Sleep(5000);
                 Environment.Exit(0);
@@ -120,51 +156,13 @@ namespace vpm
         }
     }
 
-    /*
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
-    public class QuietValidator : ArgValidator
-    {
-        public override bool ImplementsValidateAlways => true;
-
-        public override void ValidateAlways(CommandLineArgument argument, ref string arg)
-        {
-            if (arg != null)
-            {
-                if (File.Exists(arg))
-                {
-                    if (!arg.EndsWith("vvvv.exe", true, null))
-                    {
-                        throw new ValidationArgException("Specified file is not an instance of vvvv.");
-                    }
-                    arg = Path.GetFullPath(arg);
-                }
-                else
-                {
-                    throw new ValidationArgException("VVVV not Found.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("An instance of VVVV was not specified, looking for one in registry.");
-                var regkey = (string)Registry.GetValue("HKEY_CLASSES_ROOT\\VVVV\\Shell\\Open\\Command", "", "");
-                if (regkey == "")
-                {
-                    throw new ValidationArgException(
-                        "VVVV was not found in registry.\nPlease register a VVVV with setup.exe or specify vvvv.exe with the '-vvvv' argument.");
-                }
-                var exepath = regkey.Split(' ')[0].Replace("\"", "");
-                arg = Path.GetFullPath(exepath);
-            }
-        }
-    }
-    */
-
     public class VpmArgs
     {
         [ArgDescription("Specify VVVV exe location. If not specified vpm will attempt to read location from Windows Registry.")]
+        [ArgPosition(1)]
         [ArgShortcut("-vvvv")]
-        [IsVVVVExe]
-        public string VVVVExe { get; set; }
+        [VVVVPathValidator]
+        public string VVVVDir { get; set; }
 
         [ArgDescription(
 @"The .vpack file specifying pack to be installed.

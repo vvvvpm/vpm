@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Xml;
 using PowerArgs;
 
@@ -17,11 +19,42 @@ namespace vpm
             {
                 if (_vvvvarch == null)
                 {
-                    var arch = VpmUtils.GetMachineType(Args.GetAmbientArgs<VpmArgs>().VVVVExe).ToString();
-                    Console.WriteLine("VVVV architecture seems to be " + arch);
-                    _vvvvarch = arch;
+                    var vpath = Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "vvvv.exe");
+                    if (File.Exists(vpath))
+                    {
+                        var arch = VpmUtils.GetMachineType(vpath).ToString();
+                        Console.WriteLine("VVVV architecture seems to be " + arch);
+                        _vvvvarch = arch;
+                    }
+                    else
+                    {
+                        _vvvvarch = VpmUtils.PromptYayOrNay(
+                            "It looks like there's no VVVV in destination folder.\nPlease specify architecture manually",
+                            ch1: "x86",
+                            ch2: "x64"
+                            ) ? "x86" : "x64";
+                    }
                 }
                 return _vvvvarch;
+            }
+        }
+
+        private List<Assembly> _referencedAssemblies;
+        public List<Assembly> ReferencedAssemblies
+        {
+            get
+            {
+                if (_referencedAssemblies == null)
+                {
+                    _referencedAssemblies = new List<Assembly>();
+                    foreach (var ass in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+                    {
+                        var lass = Assembly.Load(ass);
+                        if (string.IsNullOrWhiteSpace(lass.Location)) continue;
+                        _referencedAssemblies.Add(lass);
+                    }
+                }
+                return _referencedAssemblies;
             }
         }
 
@@ -33,8 +66,8 @@ namespace vpm
             {
                 if (_vpmtempdir == null)
                 {
-                    var vvvvdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVExe);
-                    var tempdir = Directory.CreateDirectory(vvvvdir + "\\.vpm");
+                    var vvvvdir = Args.GetAmbientArgs<VpmArgs>().VVVVDir;
+                    var tempdir = Directory.CreateDirectory(Path.Combine(vvvvdir, ".vpm"));
                     tempdir.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
 
                     Console.WriteLine("Temp folder created successfully:\n" + tempdir.FullName);

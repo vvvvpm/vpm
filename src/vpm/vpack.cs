@@ -24,7 +24,9 @@ namespace vpm
         
         public VPack(string name, string source, IEnumerable<string> aliases = null, XmlDocument srcxml = null)
         {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Initializing " + name);
+            Console.ResetColor();
 
             Name = name;
             Source = source;
@@ -86,7 +88,9 @@ namespace vpm
                         if (dependencynode == null) continue;
                         if (dependencynode.Name != "dependency")
                         {
+                            Console.ForegroundColor = ConsoleColor.Gray;
                             Console.WriteLine("Unknown node in Dependencies: " + dependencynode.Name + ". Moving on.");
+                            Console.ResetColor();
                             continue;
                         }
                         var dnamenode = dependencynode["name"];
@@ -102,7 +106,9 @@ namespace vpm
                             Console.WriteLine(dname + " is already in vpm temp folder. Ignoring");
                             continue;
                         }
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine("Parsing " + dname);
+                        Console.ResetColor();
                         var dsrc = dsrcnode.InnerText.Trim();
 
                         List<string> aliaslist = null;
@@ -120,12 +126,14 @@ namespace vpm
                         {
                             Console.WriteLine(dname + " seems to be there already.");
                             var replaceit = !Args.GetAmbientArgs<VpmArgs>().Quiet;
-                            if(replaceit)
+                            if (replaceit)
+                            {
                                 replaceit = VpmUtils.PromptYayOrNay(
                                     "Do you want to replace it?",
                                     "WARNING: Original pack will be deleted!\nWARNING: If anything goes wrong during installation original pack won't be recovered.");
+                            }
                             if (!replaceit) continue;
-                            var aliasdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVExe) + "\\packs\\" + matchedname;
+                            var aliasdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVDir) + "\\packs\\" + matchedname;
                             VpmUtils.DeleteDirectory(aliasdir, true);
                         }
                         var newvpack = new VPack(dname, dsrc, aliaslist);
@@ -191,7 +199,9 @@ namespace vpm
             var vpmglobal = new VpmGlobals(this);
             try
             {
-                CSharpScript.EvaluateAsync(InstallScript, globals: vpmglobal);
+                CSharpScript.EvaluateAsync(InstallScript,
+                    globals: vpmglobal,
+                    options: ScriptOptions.Default.WithReferences(VpmConfig.Instance.ReferencedAssemblies));
             }
             catch (CompilationErrorException e)
             {

@@ -24,7 +24,7 @@ namespace vpm
 
         private Stopwatch Stopwatch = new Stopwatch();
 
-        public long msLimit = 17;
+        public long msLimit = 50;
 
         public UpdateTimer()
         {
@@ -52,6 +52,22 @@ namespace vpm
         Native = 0, x86 = 0x014c, Itanium = 0x0200, x64 = 0x8664
     }
 
+    public class VersionRelation
+    {
+        // value is current - existing
+        public int MajorDiff { get; private set; }
+        public int MinorDiff { get; private set; }
+        public int BuildDiff { get; private set; }
+        public int RevisionDiff { get; private set; }
+
+        public VersionRelation(System.Version curr, System.Version existing)
+        {
+            MajorDiff = curr.Major - existing.Major;
+            MinorDiff = curr.Minor - existing.Minor;
+            BuildDiff = curr.Build - existing.Build;
+            RevisionDiff = curr.Revision - existing.Revision;
+        }
+    }
     public static class VpmUtils
     {
         public static void ConsoleClearLine()
@@ -101,7 +117,7 @@ namespace vpm
                     }
                     else
                     {
-                        Console.WriteLine("Files didn't unlock in {0}. You might have to delete it yourself.");
+                        Console.WriteLine("Files didn't unlock in {0}.\nYou might have to delete it yourself.", VpmConfig.Instance.VpmTempDir);
                     }
                 }
                 else throw e;
@@ -144,23 +160,26 @@ namespace vpm
             Directory.Delete(path);
         }
 
-        public static bool PromptYayOrNay(string question, string note = "")
+        public static bool PromptYayOrNay(string question, string note = "", string ch1 = "Y", string ch2 = "N")
         {
             bool first = true;
             while (true)
             {
                 if (first)
                 {
-                    Console.WriteLine(question + " (Yay or Nay)");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(question + " (" + ch1 + " or " + ch2 + ")");
                     if (!string.IsNullOrEmpty(note)) Console.WriteLine(note);
+                    Console.ResetColor();
                 }
                 var decision = Console.ReadLine();
                 if (decision == null) continue;
-                if (decision.Contains("y") || decision.Contains("Y"))
+                decision = decision.ToLower();
+                if (decision.Contains(ch1.ToLower()))
                 {
                     return true;
                 }
-                if (decision.Contains("n") || decision.Contains("N"))
+                if (decision.Contains(ch2.ToLower()))
                 {
                     return false;
                 }
@@ -178,7 +197,7 @@ namespace vpm
 
         public static bool IsAliasExisting(string name)
         {
-            var packsdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVExe) + "\\packs";
+            var packsdir = Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "packs");
             if (!Directory.Exists(packsdir))
             {
                 Directory.CreateDirectory(packsdir);
@@ -254,11 +273,16 @@ namespace vpm
             var doc = new XmlDocument();
             string xmltext = "";
             string url = "";
+            if (xmlfile.StartsWith("http://", true, CultureInfo.InvariantCulture))
+                url = xmlfile;
+            if (xmlfile.StartsWith("https://", true, CultureInfo.InvariantCulture))
+                url = xmlfile;
+
             if (xmlfile.StartsWith("vpm://", true, CultureInfo.InvariantCulture))
                 url = xmlfile.Replace("vpm://", "http://");
-
             if (xmlfile.StartsWith("vpms://", true, CultureInfo.InvariantCulture))
                 url = xmlfile.Replace("vpms://", "https://");
+
             if (url != "")
             {
                 var client = new WebClient();
@@ -278,6 +302,16 @@ namespace vpm
             {
                 xmltext = File.ReadAllText(xmlfile);
             }
+
+            var installregex = new Regex(@"<install>(.*?)<\/install>", RegexOptions.Multiline | RegexOptions.Singleline);
+            var imatch = installregex.Match(xmltext);
+            var installtext = imatch.Groups[1].Value;
+            installtext = installtext.Replace("<", "&lt;");
+            installtext = installtext.Replace(">", "&gt;");
+
+            xmltext = Regex.Replace(
+                xmltext, @"<install>.*?<\/install>", "<install>" + installtext + "</install>",
+                RegexOptions.Multiline | RegexOptions.Singleline);
 
             doc.LoadXml(xmltext);
             return doc;
@@ -368,10 +402,12 @@ namespace vpm
                         Console.WriteLine("From submodule " + context.SubmoduleName);
                     }
                     Console.WriteLine("");
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     return true;
                 },
                 RepositoryOperationCompleted = context =>
                 {
+                    Console.ResetColor();
                     Console.WriteLine("");
                     Console.WriteLine("Done: " + context.RepositoryPath);
                     if (!string.IsNullOrEmpty(context.SubmoduleName))
@@ -403,6 +439,8 @@ namespace vpm
             };
             if (!string.IsNullOrEmpty(branch)) options.BranchName = branch;
             Repository.Clone(srcrepo, dstdir, options);
+
+            Console.ResetColor();
             Console.WriteLine("Done");
         }
 
