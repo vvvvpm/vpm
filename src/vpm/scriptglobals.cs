@@ -138,11 +138,6 @@ namespace vpm
                         Console.WriteLine("File: " + ((FileInfo)o).Name);
                     }
                 }
-                if (o is DirectoryInfo)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("Dir: " + ((DirectoryInfo) o).FullName);
-                }
             });
             Console.ResetColor();
         }

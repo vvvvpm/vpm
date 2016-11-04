@@ -30,6 +30,7 @@ namespace vpm
         {
             Stopwatch.Start();
         }
+
         public void Reset()
         {
             Stopwatch.Restart();
@@ -47,9 +48,13 @@ namespace vpm
 
         public long ms => Stopwatch.ElapsedMilliseconds;
     }
+
     public enum MachineType
     {
-        Native = 0, x86 = 0x014c, Itanium = 0x0200, x64 = 0x8664
+        Native = 0,
+        x86 = 0x014c,
+        Itanium = 0x0200,
+        x64 = 0x8664
     }
 
     public class VersionRelation
@@ -68,6 +73,7 @@ namespace vpm
             RevisionDiff = curr.Revision - existing.Revision;
         }
     }
+
     public static class VpmUtils
     {
         public static void ConsoleClearLine()
@@ -76,6 +82,7 @@ namespace vpm
             Console.Write(new String(' ', Console.BufferWidth));
             Console.SetCursorPosition(0, Math.Max(Console.CursorTop - 1, 0));
         }
+
         public static MachineType GetMachineType(string fileName)
         {
             const int PE_POINTER_OFFSET = 60;
@@ -117,7 +124,8 @@ namespace vpm
                     }
                     else
                     {
-                        Console.WriteLine("Files didn't unlock in {0}.\nYou might have to delete it yourself.", VpmConfig.Instance.VpmTempDir);
+                        Console.WriteLine("Files didn't unlock in {0}.\nYou might have to delete it yourself.",
+                            VpmConfig.Instance.VpmTempDir);
                     }
                 }
                 else throw e;
@@ -378,7 +386,36 @@ namespace vpm
             {
                 string temppath = Path.Combine(dst, file.Name);
                 progress?.Invoke(file);
-                file.CopyTo(temppath, true);
+                try
+                {
+                    file.CopyTo(temppath, true);
+                }
+                catch
+                {
+                    try
+                    {
+                        if (File.Exists(temppath))
+                        {
+                            var attrs = File.GetAttributes(temppath);
+                            if ((attrs & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                            {
+                                attrs = attrs & ~FileAttributes.ReadOnly;
+                                File.SetAttributes(temppath, attrs);
+                            }
+                            if ((attrs & FileAttributes.Hidden) == FileAttributes.Hidden)
+                            {
+                                attrs = attrs & ~FileAttributes.Hidden;
+                                File.SetAttributes(temppath, attrs);
+                            }
+                            file.CopyTo(temppath, true);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Problem with {0}:", file.Name);
+                        Console.WriteLine(e.Message);
+                    }
+                }
             }
 
             // If copying subdirectories, copy them and their contents to new location.
@@ -386,7 +423,15 @@ namespace vpm
             {
                 string temppath = Path.Combine(dst, subdir.Name);
                 progress?.Invoke(subdir);
-                CopyDirectory(subdir.FullName, temppath, ignore, match, progress);
+                try
+                {
+                    CopyDirectory(subdir.FullName, temppath, ignore, match, progress);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Problem with {0}:", subdir.Name);
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 

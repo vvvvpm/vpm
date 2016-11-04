@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using PowerArgs;
@@ -12,7 +13,7 @@ namespace vpm
         {
             Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("vpm 1.1 at your service!");
+            Console.WriteLine("vpm 1.1.2 at your service!");
             Console.ResetColor();
             try
             {
@@ -63,8 +64,16 @@ namespace vpm
                 if (VpmUtils.IsPackExisting(name, aliaslist, out matchalias))
                 {
                     Console.WriteLine("Input pack seems to be already existing as " + matchalias);
-                    VpmUtils.CleanUp();
-                    Environment.Exit(0);
+                    if (VpmUtils.PromptYayOrNay("Do you want to overwrite?"))
+                    {
+                        var packdir = Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "packs", matchalias);
+                        VpmUtils.DeleteDirectory(packdir, true);
+                    }
+                    else
+                    {
+                        VpmUtils.CleanUp();
+                        Environment.Exit(0);
+                    }
                 }
                 var vpack = new VPack(name, src, aliaslist, vpxml);
 
