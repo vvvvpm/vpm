@@ -18,21 +18,22 @@ See in action here:
 * Stuff you would expect from a regular package Manager  
   (Except for version checking YET)
 * Install packs directly from browser or anywhere with vpm:// and vpms:// uri schemes
-* Drag'n'drop pack file on executable to install it.
+* Associate pack file with vpm.
 * C# scripting for installation and for packs which don't have a complimentary vpack file (yet ;) )
 
 ## How it works?
 vpm first creates a temporary folder called (guess what) ".vpm" inside specified vvvv's folder. vpm will create working directories for each packs and dependencies in this temporary folder. These folders can be used by the installation scripts to download, clone or create data for the pack, and copy the results from those folders to vvvv\\packs.  
 Then it will parse the input vpack file and its dependencies recursively. When that's done the installation scripts will be run for each collected packs/dependencies.
+Note that a vvvv instance is not required anymore so you can specify any, even a non-existing folder. vpm will ask you which architecture you want to use if it can't find a vvvv.exe in the specified folder. If there's no registered vvvv and no folder is specified vpm will use its containing folder.
 
 ## Getting started for End-users
-* A registered vvvv is required  
+* A registered vvvv is recommended (but not required anymore)  
   (means run setup.exe and associate .v4p files at least once during the lifetime of current windows install)
-* Download latest version from here: https://vvvv.org/contribution/vpm-alpha
+* Download latest version from here: https://vvvv.org/contribution/vpm
 * Extract anywhere
-* Run it at least once so it can register vpm:// or vpms:// uri schemes.  
+* Run it at least once so it can register vpm:// or vpms:// uri schemes and associate .vpack files.  
   (requires Admin privileges (UAC dialog box will pop up))
-* Also you can drag'n'drop a .vpack file on it to install that pack.
+* Now you can either double click a .vpack file or use a vpm(s):// url from browser.
 
 ## Getting started for Power-users
 or Command line arguments:
@@ -50,7 +51,6 @@ The mandatory minimal vpack file and its structure looks something like this:
 <vpack>
   <meta>
     <name>MyPack</name>
-    <source></source>
   </meta>
   <install>
     // C# script here
@@ -64,7 +64,7 @@ __`<name>*`__ will also serve as the default folder name and vpm will also deter
 
 __`<aliases>`__ is a list of possible alternative foldernames might containing current pack in vvvv's packs folder separated with commas. vpm checks if pack is already installed based on the name and aliases if any is specified.
 
-__`<source>*`__ It may specify a git repository which vpm will clone in its temporary folder. Otherwise the installation script have to take care of fetching pack data from the internet too. It might become optional in the future.
+__`<source>`__ It may specify a git repository which vpm will clone in its temporary folder. Otherwise the installation script have to take care of fetching pack data from the internet too. It is optional and it is rather recommended to use the GitClone method in the installation script.
 
 __`<dependencies>`__ The collection of `<dependency>` tags. Any other tags will be ignored by vpm here.
 
@@ -96,7 +96,7 @@ Here's a real life example using most of the above mentioned tags for mp.dx
       </dependency>
       <dependency>
         <name>dx11-vvvv</name>
-        <source>https://raw.githubusercontent.com/microdee/vpm/master/vpdb/vux/dx11-vvvv/github.master.csx</source>
+        <source>https://raw.githubusercontent.com/vvvvpm/vpdb/vux/dx11-vvvv/github.master.csx</source>
         <aliases>dx11, vvvv-dx11</aliases>
       </dependency>
     </dependencies>
