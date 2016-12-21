@@ -1,6 +1,8 @@
 # vpm
 A package Manager for VVVV
 
+[![Build status](https://ci.appveyor.com/api/projects/status/e78ort36tplgcjku?svg=true)](https://ci.appveyor.com/project/microdee/vpm)
+
 ## Motivation
 In vvvv packs plugins and other externals are not coming in proper packages with meta information attached to them, usually they are just a collection of files at the right places extracted from an archive mostly. In itself it wouldn't be a problem as isolated packs are recognized and loaded into vvvv quite well. Problem starts when there are packs depending on X number of other packs. And with ~
 630 externals listed only on vvvv.org + more experimental, pre-release packs circulating on github that actually happens quite some time.

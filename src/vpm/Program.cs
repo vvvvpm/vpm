@@ -13,7 +13,7 @@ namespace vpm
         {
             Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("vpm 1.1.3 at your service!");
+            Console.WriteLine("vpm at your service!");
             Console.ResetColor();
             try
             {
