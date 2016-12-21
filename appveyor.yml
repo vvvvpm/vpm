@@ -1,0 +1,14 @@
+version: 1.1.{build}
+configuration: Debug
+platform: Any CPU
+build:
+  project: src/vpm/vpm.sln
+  verbosity: minimal
+artifacts:
+- path: src/vpm/deploy
+  name: vpm
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: YQ0zEVewHeKx2BEx2KQZV/n7rjTzeY+p8q5Zc78XYlUG/jBGyj8LXlM47ipy/zcW
+  artifact: vpm

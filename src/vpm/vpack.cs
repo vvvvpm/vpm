@@ -133,7 +133,7 @@ namespace vpm
                                     "WARNING: Original pack will be deleted!\nWARNING: If anything goes wrong during installation original pack won't be recovered.");
                             }
                             if (!replaceit) continue;
-                            var aliasdir = Path.GetDirectoryName(Args.GetAmbientArgs<VpmArgs>().VVVVDir) + "\\packs\\" + matchedname;
+                            var aliasdir = Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "packs", matchedname);
                             VpmUtils.DeleteDirectory(aliasdir, true);
                         }
                         var newvpack = new VPack(dname, dsrc, aliaslist);
