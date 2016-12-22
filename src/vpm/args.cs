@@ -48,7 +48,7 @@ namespace vpm
                 var regkey = (string)Registry.GetValue("HKEY_CLASSES_ROOT\\VVVV\\Shell\\Open\\Command", "", "");
                 if (string.IsNullOrWhiteSpace(regkey))
                 {
-                    arg = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    arg = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
                 }
                 else
                 {

@@ -18,7 +18,9 @@ namespace vpm
         public string Author;
         public string Source;
         public string TempDir;
+        public string LicenseUrl;
         public string InstallScript;
+        public bool Agreed = false;
         public List<string> Aliases = new List<string>();
         public List<VPack> Dependencies = new List<VPack>();
         
@@ -36,6 +38,8 @@ namespace vpm
 
             var authornode = srcxml?.SelectSingleNode("/vpack/meta/author");
             if (authornode != null) Author = authornode.InnerText.Trim();
+            var licensenode = srcxml?.SelectSingleNode("/vpack/meta/license");
+            LicenseUrl = licensenode != null ? licensenode.InnerText.Trim() : "http://www.imxprs.com/free/microdee/vpmnolicense";
 
             Directory.CreateDirectory(TempDir);
 
@@ -145,6 +149,7 @@ namespace vpm
             {
                 ScriptSource();
             }
+            VpmConfig.Instance.PackList.Add(this);
         }
 
         protected bool CloneFromGit(bool submodules)
@@ -212,6 +217,11 @@ namespace vpm
                 VpmUtils.CleanUp();
                 Environment.Exit(0);
             }
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

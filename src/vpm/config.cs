@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using System.Xml;
 using PowerArgs;
 
@@ -91,5 +92,10 @@ namespace vpm
                 return _openedpack;
             }
         }
+        public Application WinApp { get; set; }
+        public Window AgreeWindow { get; set; }
+        public List<VPack> _packlist = new List<VPack>();
+        public List<VPack> PackList => _packlist;
+        public bool InstallationCancelled = true;
     }
 }

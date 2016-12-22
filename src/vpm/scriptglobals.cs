@@ -6,8 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using PowerArgs;
-using SharpCompress.Archive;
+using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace vpm
 {
@@ -244,7 +245,11 @@ namespace vpm
                     VpmUtils.ConsoleClearLine();
                     Console.WriteLine(entry.Key);
                 }
-                entry.WriteToDirectory(dstdir, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+                entry.WriteToDirectory(dstdir, new ExtractionOptions
+                {
+                    ExtractFullPath = true,
+                    Overwrite = true
+                });
             }
             archive.Dispose();
             Console.ResetColor();

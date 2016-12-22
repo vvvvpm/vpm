@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
 using Microsoft.Win32;
 using PowerArgs;
 

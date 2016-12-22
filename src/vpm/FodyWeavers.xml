@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Weavers>
-  <Costura>
+  <Costura CreateTemporaryAssemblies='true'>
     <ExcludeAssemblies>
+      CefSharp
+      CefSharp.BrowserSubprocess
+      CefSharp.BrowserSubprocess.Core
+      CefSharp.Core
+      CefSharp.Wpf
       LibGit2Sharp
     </ExcludeAssemblies>
   </Costura>

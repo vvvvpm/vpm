@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 using PowerArgs;
 
 namespace vpm
 {
     class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             Console.WriteLine("");
@@ -80,6 +82,19 @@ namespace vpm
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Initialization complete.");
                 Console.ResetColor();
+
+                var winapp = VpmConfig.Instance.WinApp = new Application();
+                var window = VpmConfig.Instance.AgreeWindow = new UserAgree();
+                winapp.Run(window);
+
+                if (VpmConfig.Instance.InstallationCancelled)
+                {
+                    VpmUtils.CleanUp();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Installation is canceled");
+                    Thread.Sleep(5000);
+                    Environment.Exit(0);
+                }
 
                 vpack.Install();
                 VpmUtils.CleanUp();
