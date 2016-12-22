@@ -38,8 +38,6 @@ namespace vpm
 
             var authornode = srcxml?.SelectSingleNode("/vpack/meta/author");
             if (authornode != null) Author = authornode.InnerText.Trim();
-            var licensenode = srcxml?.SelectSingleNode("/vpack/meta/license");
-            LicenseUrl = licensenode != null ? licensenode.InnerText.Trim() : "http://www.imxprs.com/free/microdee/vpmnolicense";
 
             Directory.CreateDirectory(TempDir);
 
@@ -60,6 +58,9 @@ namespace vpm
             }
             if (xmldoc != null)
             {
+                var licensenode = xmldoc.SelectSingleNode("/vpack/meta/license");
+                LicenseUrl = licensenode != null ? licensenode.InnerText.Trim() : "http://www.imxprs.com/free/microdee/vpmnolicense";
+
                 var namenode = xmldoc.SelectSingleNode("/vpack/meta/name");
                 if (namenode == null)
                 {

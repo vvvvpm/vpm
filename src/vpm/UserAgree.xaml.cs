@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -50,11 +51,16 @@ namespace vpm
                 };
                 VPackList.Items.Add(item);
             }
-            VPackList.SelectedIndex = 0;
-            SelectedPack = (ListBoxItem)VPackList.Items[0];
-            var pack = (VPack)SelectedPack.Content;
-            AgreeAndInstall.IsChecked = pack.Agreed;
-            Browser.Load(pack.LicenseUrl);
+            var delay = new Timer { Interval = 1500 };
+            delay.Elapsed += (o, ee) =>
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    VPackList.SelectedIndex = 0;
+                    delay.Stop();
+                }));
+            };
+            delay.Start();
         }
 
         private void VPackList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
