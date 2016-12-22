@@ -22,6 +22,7 @@ See in action here:
 * Install packs directly from browser or anywhere with vpm:// and vpms:// uri schemes
 * Associate pack file with vpm.
 * C# scripting for installation and for packs which don't have a complimentary vpack file (yet ;) )
+* License Agreement screen for packs
 
 ## How it works?
 vpm first creates a temporary folder called (guess what) ".vpm" inside specified vvvv's folder. vpm will create working directories for each packs and dependencies in this temporary folder. These folders can be used by the installation scripts to download, clone or create data for the pack, and copy the results from those folders to vvvv\\packs.  
@@ -51,12 +52,12 @@ The mandatory minimal vpack file and its structure looks something like this:
 
 ```xml
 <vpack>
-  <meta>
-    <name>MyPack</name>
-  </meta>
-  <install>
-    // C# script here
-  </install>
+    <meta>
+        <name>MyPack</name>
+    </meta>
+    <install>
+        // C# script here
+    </install>
 </vpack>
 ```
 
@@ -65,6 +66,8 @@ However this vpack won't do anything as no instructions are written in the insta
 __`<name>*`__ will also serve as the default folder name and vpm will also determine if an earlier installment is already in the packs folder based on this name (... too, see aliases)
 
 __`<aliases>`__ is a list of possible alternative foldernames might containing current pack in vvvv's packs folder separated with commas. vpm checks if pack is already installed based on the name and aliases if any is specified.
+
+__`<license>`__ is a an url pointing to possibly a license agreement but it can be also used for allowing users to actually buy payed contributions. Contents of this url will be displayed on the EULA screen.
 
 __`<source>`__ It may specify a git repository which vpm will clone in its temporary folder. Otherwise the installation script have to take care of fetching pack data from the internet too. It is optional and it is rather recommended to use the GitClone method in the installation script.
 
@@ -83,33 +86,33 @@ __`<install>*`__ is where the C# script goes which tells vpm what to do with afo
 Here's a real life example using most of the above mentioned tags for mp.dx
 ```xml
 <vpack>
-  <meta>
-    <name>mp.dx</name>
-    <source>https://github.com/microdee/mp.dx.git</source>
-    <author>microdee</author>
-    <dependencies>
-      <dependency>
-        <name>mp.essentials</name>
-        <source>https://github.com/microdee/mp.essentials.git</source>
-      </dependency>
-      <dependency>
-        <name>mp.fxh</name>
-        <source>https://github.com/microdee/mp.fxh.git</source>
-      </dependency>
-      <dependency>
-        <name>dx11-vvvv</name>
-        <source>https://raw.githubusercontent.com/vvvvpm/vpdb/vux/dx11-vvvv/github.master.csx</source>
-        <aliases>dx11, vvvv-dx11</aliases>
-      </dependency>
-    </dependencies>
-  </meta>
-  <install>
-    CopyDir(
-        Pack.TempDir,
-        VVVV.Dir + "\packs\" + Pack.Name,
-        ignore: new string[] {"src", ".git*"}
-    );
-  </install>
+	<meta>
+		<name>mp.dx</name>
+		<source>https://github.com/microdee/mp.dx.git</source>
+        <license>http://www.imxprs.com/free/microdee/mdmit</license>
+		<author>microdee</author>
+		<dependencies>
+			<dependency>
+				<name>mp.essentials</name>
+				<source>https://github.com/microdee/mp.essentials.git</source>
+			</dependency>
+			<dependency>
+				<name>mp.fxh</name>
+				<source>https://github.com/microdee/mp.fxh.git</source>
+			</dependency>
+			<dependency>
+				<name>dx11-vvvv</name>
+				<source>vpms://raw.githubusercontent.com/vvvvpm/vpdb/master/vux/dx11-vvvv/github.master.vpack</source>
+			</dependency>
+		</dependencies>
+	</meta>
+	<install>
+		CopyDir(
+			Pack.TempDir,
+			VVVV.Dir + "\\packs\\" + Pack.Name,
+			ignore: new string[] {"src", ".git*"}
+		);
+	</install>
 </vpack>
 ```
 
