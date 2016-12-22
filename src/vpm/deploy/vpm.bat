@@ -1,1 +1,2 @@
-vpm\vpm.exe %
+@echo off
+%~p0\vpm\vpm.exe %
