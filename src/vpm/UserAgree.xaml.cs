@@ -24,12 +24,39 @@ namespace vpm
     /// </summary>
     public partial class UserAgree : Window
     {
+        public JsVPackInterop InteropObj;
         public ListBoxItem SelectedPack;
+        public bool PackChanged = false;
         public UserAgree()
         {
             InitializeComponent();
         }
 
+        public void DisableAgree()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                AgreeAndInstall.IsEnabled = false;
+            }));
+        }
+        public void EnableAgree()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                AgreeAndInstall.IsEnabled = true;
+            }));
+        }
+
+        public void ContinueFromJS()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                AgreeAndInstall.IsEnabled = true;
+                AgreeAndInstall.IsChecked = true;
+                if (VPackList.SelectedIndex < VPackList.Items.Count - 1)
+                    VPackList.SelectedIndex = (VPackList.SelectedIndex + 1) % VPackList.Items.Count;
+            }));
+        }
         private void ContinueInstall_Click(object sender, RoutedEventArgs e)
         {
             VpmConfig.Instance.InstallationCancelled = false;
@@ -39,6 +66,12 @@ namespace vpm
 
         private void UserAgree_OnInitialized(object sender, EventArgs e)
         {
+
+            InteropObj = new JsVPackInterop
+            {
+                UserAgreeWindow = this
+            };
+            Browser.RegisterJsObject("vpm", InteropObj);
             foreach (var vpack in VpmConfig.Instance.PackList)
             {
                 var item = new ListBoxItem
@@ -51,7 +84,7 @@ namespace vpm
                 };
                 VPackList.Items.Add(item);
             }
-            var delay = new Timer { Interval = 1500 };
+            var delay = new Timer { Interval = 1000 };
             delay.Elapsed += (o, ee) =>
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
@@ -66,7 +99,7 @@ namespace vpm
         private void VPackList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if(e.AddedItems.Count <= 0) return;
-
+            PackChanged = true;
             SelectedPack = (ListBoxItem)e.AddedItems[0];
             var pack = (VPack)SelectedPack.Content;
             AgreeAndInstall.IsChecked = pack.Agreed;
@@ -90,15 +123,17 @@ namespace vpm
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action( () =>
             {
+                if (!PackChanged) return;
                 if (e.IsLoading)
                 {
                     AgreeAndInstall.IsEnabled = false;
-                    NextPack.IsEnabled = false;
+                    InteropObj.CurrentPack = (VPack)SelectedPack.Content;
                 }
                 else
                 {
                     AgreeAndInstall.IsEnabled = true;
                     NextPack.IsEnabled = true;
+                    PackChanged = false;
                 }
             }));
         }
@@ -107,5 +142,12 @@ namespace vpm
         {
             VPackList.SelectedIndex = (VPackList.SelectedIndex + 1) % VPackList.Items.Count;
         }
+        /*
+        private void AgreeAndInstall_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(AgreeAndInstall.IsEnabled)
+                Console.WriteLine("Agree Enabled");
+        }
+        */
     }
 }

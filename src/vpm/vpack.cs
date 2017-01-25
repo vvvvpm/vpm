@@ -12,6 +12,43 @@ using PowerArgs;
 
 namespace vpm
 {
+    public class JsVPackInterop
+    {
+        public VPack CurrentPack;
+        public UserAgree UserAgreeWindow;
+
+        public string GetPackXml()
+        {
+            return CurrentPack.RawXml;
+        }
+
+        public void Continue(string data)
+        {
+            SetInstallData(data);
+            UserAgreeWindow.ContinueFromJS();
+        }
+        public void SetInstallData(string data)
+        {
+            CurrentPack.InstallDataFromJS = data;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Licensing page passed data for the installation script.");
+            Console.ResetColor();
+        }
+        public void DisableAgree()
+        {
+            UserAgreeWindow.DisableAgree();
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Licensing page Disabled the \"Agree\" checkbox.");
+            Console.ResetColor();
+        }
+        public void EnableAgree()
+        {
+            UserAgreeWindow.EnableAgree();
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Licensing page Enabled the \"Agree\" checkbox.");
+            Console.ResetColor();
+        }
+    }
     public class VPack
     {
         public string Name;
@@ -19,7 +56,9 @@ namespace vpm
         public string Source;
         public string TempDir;
         public string LicenseUrl;
+        public string InstallDataFromJS;
         public string InstallScript;
+        public string RawXml;
         public bool Agreed = false;
         public List<string> Aliases = new List<string>();
         public List<VPack> Dependencies = new List<VPack>();
@@ -58,6 +97,7 @@ namespace vpm
             }
             if (xmldoc != null)
             {
+                RawXml = xmldoc.ToString();
                 var licensenode = xmldoc.SelectSingleNode("/vpack/meta/license");
                 LicenseUrl = licensenode != null ? licensenode.InnerText.Trim() : "http://www.imxprs.com/free/microdee/vpmnolicense";
 
