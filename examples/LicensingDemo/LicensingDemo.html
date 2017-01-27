@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    background-color: #2C2C2C;
+    color: white;
+}
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+.columns {
+    float: left;
+    width: 33.3%;
+    padding: 8px;
+}
+
+.price {
+    list-style-type: none;
+    border: 1px solid #eee;
+    margin: 0;
+    padding: 0;
+    -webkit-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.price:hover {
+    box-shadow: 0 15px 25px 0 rgba(0,0,0,1);
+    transform: translate(0px, -10px);
+}
+
+.price .header {
+    background-color: #111;
+    color: white;
+    font-size: 25px;
+}
+
+.price li {
+    border-bottom: 1px solid #555;
+    padding: 20px;
+    text-align: center;
+}
+
+.price .grey {
+    background-color: #555;
+    font-size: 20px;
+}
+
+.button {
+    display: block;
+    position: relative;
+    top: 0;
+    background-color: #878787;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+}
+.button:hover {
+    background-color: #AAA;
+}
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #555;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+    box-shadow: 0 15px 25px 0 rgba(0,0,0,1);
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-header {
+    padding: 2px 16px;
+    background-color: #878787;
+    color: white;
+}
+
+.modal-body {
+    padding: 2px 16px;
+    color: black;
+}
+
+.modal-footer {
+    padding: 2px 16px;
+    background-color: #878787;
+    min-height: 50px;
+    color: white;
+}
+
+@media only screen and (max-width: 600px) {
+    .columns {
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    setTimeout(function(){ vpm.disableAgree(); }, 200);
+</script>
+</head>
+<body>
+
+<h2 style="text-align:center">My avvvvesome pack!</h2>
+<p style="text-align:center">Ladies and gentlemen! Behold, the best thing in the universe:</p>
+<p style="text-align:center">(this page doesn't try to sell anything. it's just made for demonstration purposes)</p>
+<div class="cont">
+    <div class="columns">
+      <ul class="price">
+        <li class="header">Non-Commercial</li>
+        <li class="grey">FREE!</li>
+        <li>For education, evaluation, research and just-for-fun</li>
+        <li>Message pops up at startup reminding you about being non-commercial only</li>
+        <li class="grey"><a href="#" onclick="vpm.continue('FREE')" class="button">Install</a></li>
+      </ul>
+    </div>
+
+    <div class="columns">
+      <ul class="price">
+        <li class="header" style="background-color:#777777">Single</li>
+        <li class="grey">$ 49.99 / year</li>
+        <li>If you're buying vvvv for your project you should also buy this pack</li>
+        <li>Custom build without any annoyance</li>
+        <li>1 running deployment only</li>
+        <li class="grey"><a href="#" class="button" id="singlePaypal">Paypal</a></li>
+      </ul>
+    </div>
+
+    <div class="columns">
+      <ul class="price">
+        <li class="header">Unlimited</li>
+        <li class="grey">$ 199.99 / year</li>
+        <li>Everything in Single</li>
+        <li>Unlimited running deployment</li>
+        <li>Source code access</li>
+        <li class="grey"><a href="#" class="button" id="unlimitedPaypal">Paypal</a></li>
+      </ul>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div id="singleModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Payment successful!</h2>
+    </div>
+    <div class="modal-body">
+      <p>"Single" license ($49.99)</p>
+      <p>Thank you for your support! Enjoy!</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" onclick="vpm.continue('SINGLE')" class="button install">Install!</a>
+    </div>
+  </div>
+</div>
+
+<!-- The Modal -->
+<div id="unlimitedModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Payment successful!</h2>
+    </div>
+    <div class="modal-body">
+      <p>"Unlimited" license ($199.99)</p>
+      <p>Thank you for your support! Enjoy!</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" onclick="vpm.continue('UNLIMITED')" class="button install">Install!</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Get the modal
+var smodal = document.getElementById('singleModal');
+var umodal = document.getElementById('unlimitedModal');
+
+// Get the button that opens the modal
+var sbtn = document.getElementById("singlePaypal");
+var ubtn = document.getElementById("unlimitedPaypal");
+
+// When the user clicks the button, open the modal
+sbtn.onclick = function() {
+    smodal.style.display = "block";
+}
+ubtn.onclick = function() {
+    umodal.style.display = "block";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+/*
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+*/
+</script>
+
+</body>
+</html>

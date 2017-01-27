@@ -1,0 +1,13 @@
+<vpack>
+	<meta>
+		<name>My Avvvvesome Pack</name>
+        <license>http://localhost:2000</license>
+		<author>microdee</author>
+	</meta>
+	<install>
+        using System;
+        Console.WriteLine("");
+        Console.WriteLine("Installing " + Pack.InstallDataFromJS + " version");
+        Console.WriteLine("");
+	</install>
+</vpack>

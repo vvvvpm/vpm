@@ -1,0 +1,63 @@
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv50alpha35.1.dtd" >
+   <PATCH nodename="C:\vvvv\libs\md.ecosystem\vpm\examples\LicensingDemo\HostLicensingDemo.v4p" scrollx="0" scrolly="0" systemname="vpmjsinteroptest" filename="C:\vvvv\app\vvvv-vpm\vpmjsinteroptest.v4p">
+   <BOUNDS type="Window" left="19230" top="9825" width="4095" height="3735">
+   </BOUNDS>
+   <NODE systemname="HTTP (Network Server)" nodename="HTTP (Network Server)" componentmode="Hidden" id="4">
+   <BOUNDS type="Node" left="915" top="1980" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Port" slicecount="1" values="2000">
+   </PIN>
+   <PIN pinname="Content" visible="1">
+   </PIN>
+   </NODE>
+   <PACK Name="vvvv-Message" Version="2.9.0">
+   </PACK>
+   <PACK Name="vvvv-ZeroMQ" Version="0.5.3">
+   </PACK>
+   <PACK Name="vvvv-ZeroMQ_Release_x64" Version="0.5.0">
+   </PACK>
+   <PACK Name="addonpack" Version="35.0.0">
+   </PACK>
+   <NODE systemname="Reader (String)" filename="%VVVV%\lib\nodes\modules\String\Reader (String).v4p" nodename="Reader (String)" componentmode="Hidden" id="7">
+   <BOUNDS type="Node" left="1155" top="1455" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Filename" slicecount="1" visible="1" values="file.txt">
+   </PIN>
+   <PIN pinname="Content" visible="1">
+   </PIN>
+   <PIN pinname="Read" slicecount="1" visible="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="8">
+   <BOUNDS type="Box" left="1155" top="555" width="795" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="1155" top="555" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Input String" slicecount="1" visible="1" values="LicensingDemo.html">
+   </PIN>
+   <PIN pinname="Default" slicecount="1" values="file.txt">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="|All Text Formats (*.csv, *.dtd, *.html, *.txt, *.xml)||*.csv;*.dtd;*.html;*.htm;*.txt;*.xml||Text (*.txt)||*.txt||XML (*.xml)||*.xml||CSV (*.csv)||*.csv||DTD (*.dtd)||*.dtd||HTML (*.html, *.htm)||*.html;*.htm|">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="Filename">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Output String" dstnodeid="7" dstpinname="Filename">
+   </LINK>
+   <LINK srcnodeid="7" srcpinname="Content" dstnodeid="4" dstpinname="Content">
+   </LINK>
+   <NODE systemname="OnOpen (VVVV)" nodename="OnOpen (VVVV)" componentmode="Hidden" id="10">
+   <BOUNDS type="Node" left="1905" top="1005" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Bang" visible="1">
+   </PIN>
+   <PIN pinname="Simulate" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="10" srcpinname="Bang" dstnodeid="7" dstpinname="Read">
+   </LINK>
+   <PACK Name="VVVV.Packs" Version="0.2.0">
+   </PACK>
+   </PATCH>
