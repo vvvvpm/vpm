@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using MahApps.Metro.Controls;
 using CefSharp;
 using CefSharp.Wpf;
 
@@ -22,7 +23,7 @@ namespace vpm
     /// <summary>
     /// Interaction logic for UserAgree.xaml
     /// </summary>
-    public partial class UserAgree : Window
+    public partial class UserAgree : MetroWindow
     {
         public JsVPackInterop InteropObj;
         public ListBoxItem SelectedPack;
@@ -116,6 +117,7 @@ namespace vpm
             pack.Agreed = true;
 
             ContinueInstall.IsEnabled = (from ListBoxItem item in VPackList.Items select (VPack) item.Content).Aggregate(true, (current, ipack) => current && ipack.Agreed);
+            if (ContinueInstall.IsEnabled) ContinueInstall.Opacity = 1;
 
         }
 
@@ -123,17 +125,27 @@ namespace vpm
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action( () =>
             {
-                if (!PackChanged) return;
-                if (e.IsLoading)
+                if (PackChanged)
                 {
-                    AgreeAndInstall.IsEnabled = false;
-                    InteropObj.CurrentPack = (VPack)SelectedPack.Content;
+                    if (e.IsLoading)
+                    {
+                        LoadingCover.Visibility = Visibility.Visible;
+                        LoadingRing.IsActive = true;
+                        AgreeAndInstall.IsEnabled = false;
+                        InteropObj.CurrentPack = (VPack)SelectedPack.Content;
+                    }
+                    else
+                    {
+                        LoadingCover.Visibility = Visibility.Hidden;
+                        LoadingRing.IsActive = false;
+                        AgreeAndInstall.IsEnabled = true;
+                        NextPack.IsEnabled = true;
+                        PackChanged = false;
+                    }
                 }
                 else
                 {
-                    AgreeAndInstall.IsEnabled = true;
-                    NextPack.IsEnabled = true;
-                    PackChanged = false;
+                    SmallLoadingRing.IsActive = e.IsLoading;
                 }
             }));
         }
@@ -142,12 +154,11 @@ namespace vpm
         {
             VPackList.SelectedIndex = (VPackList.SelectedIndex + 1) % VPackList.Items.Count;
         }
-        /*
+
         private void AgreeAndInstall_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if(AgreeAndInstall.IsEnabled)
-                Console.WriteLine("Agree Enabled");
+            if ((bool)e.NewValue) AgreeAndInstall.Opacity = 1;
+            else AgreeAndInstall.Opacity = 0.5;
         }
-        */
     }
 }

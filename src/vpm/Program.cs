@@ -85,6 +85,7 @@ namespace vpm
 
                 var winapp = VpmConfig.Instance.WinApp = new Application();
                 var window = VpmConfig.Instance.AgreeWindow = new UserAgree();
+                
                 winapp.Run(window);
 
                 if (VpmConfig.Instance.InstallationCancelled)
