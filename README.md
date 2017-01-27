@@ -26,17 +26,18 @@ See in action here:
 
 ## How it works?
 vpm first creates a temporary folder called (guess what) ".vpm" inside specified vvvv's folder. vpm will create working directories for each packs and dependencies in this temporary folder. These folders can be used by the installation scripts to download, clone or create data for the pack, and copy the results from those folders to vvvv\\packs.  
-Then it will parse the input vpack file and its dependencies recursively. When that's done the installation scripts will be run for each collected packs/dependencies.
+Then it will parse the input vpack file and its dependencies recursively. When that's done the user is prompted to accept the license agreements. If all the licenses have been agreed the installation scripts will be run for each collected packs/dependencies.
 Note that a vvvv instance is not required anymore so you can specify any, even a non-existing folder. vpm will ask you which architecture you want to use if it can't find a vvvv.exe in the specified folder. If there's no registered vvvv and no folder is specified vpm will use its containing folder.
 
 ## Getting started for End-users
 * A registered vvvv is recommended (but not required anymore)  
   (means run setup.exe and associate .v4p files at least once during the lifetime of current windows install)
-* Download latest version from here: https://vvvv.org/contribution/vpm
+* Download latest version from here: https://github.com/vvvvpm/vpm/releases/latest
 * Extract anywhere
 * Run it at least once so it can register vpm:// or vpms:// uri schemes and associate .vpack files.  
   (requires Admin privileges (UAC dialog box will pop up))
-* Now you can either double click a .vpack file or use a vpm(s):// url from browser.
+* Now you can either double click a .vpack file or use a vpm(s):// url from browser  
+(for example from the VPDB repo https://vvvvpm.github.io/).
 
 ## Getting started for Power-users
 or Command line arguments:
@@ -115,6 +116,15 @@ Here's a real life example using most of the above mentioned tags for mp.dx
 	</install>
 </vpack>
 ```
+### License pages
+![](http://i.imgur.com/qOv3utO.png)
+In the vpack file you can specify a simple url pointing to any website. vpm provides some javascript functions which can allow the license page to communicate with vpm and pass data to the installation script. Such data can be used to select different editions of the same pack to install based on user input on the license page.
+
+The page can disable `vpm.disableAgree()` or enable `vpm.enableAgree()` the "Agree and Install" checkbox, pass a string data to the installation script `vpm.setInstallData(data)` and it can automatically agree, advance to the next pack and pass string data to the installation script `vpm.continue(data)` with one function too. It can also read the current vpack xml file `vpm.getPackXml()`.
+
+The installation script can access the passed data via `Pack.InstallDataFromJS` which can be null or empty if the licensing page haven't written to it.
+
+__Note:__ Be careful what sorts of data you pass this way to the installer. Because vpm is open source one can easily look at this data with a Visual Studio debugger if they put breakpoints on the right functions. If you need to pass confidential data I'd suggest using an arbitrary encryption on it encoded in javascript wolrd and decoded in csx wolrd. Both are black boxes according to a simple debugger however again consider that the user can read csx source code in the vpack. So engineer it accordingly. To make this more secure base64 encoded compiled binary support is on the TODO list.
 
 ### Installation scripts
 Everything what's specified here https://github.com/dotnet/roslyn/wiki you can do that with vpm too (in theory). It's full fledged C# (in theory) with a python inspired flavor. The only limit here is your dedication. vpm will create a separate "global" object for each installation script containing useful information and common easy to use methods for moving/fetching files around.  
