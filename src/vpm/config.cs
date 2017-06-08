@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Xml;
+using NuGet;
 using PowerArgs;
 
 namespace vpm
@@ -12,6 +13,10 @@ namespace vpm
     {
         private static VpmConfig _instance;
         public static VpmConfig Instance => _instance ?? (_instance = new VpmConfig());
+
+        private IPackageRepository _defaultNugetRepository;
+        public IPackageRepository DefaultNugetRepository => _defaultNugetRepository ??
+            (_defaultNugetRepository = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2"));
 
         private string _vvvvarch;
         public string VVVVArcitecture

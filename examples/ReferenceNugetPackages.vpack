@@ -1,0 +1,14 @@
+<vpack>
+	<meta>
+		<name>My Avvvvesome Pack</name>
+		<author>microdee</author>
+	</meta>
+	<nuget>
+		<package version="10.0.2">Newtonsoft.Json</package>
+		<package>EntityFramework</package>
+	</nuget>
+	<install>
+		using System;
+		Console.WriteLine("tada");
+	</install>
+</vpack>

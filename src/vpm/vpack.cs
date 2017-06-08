@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using System.Xml;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using PowerArgs;
+using NuGet;
 
 namespace vpm
 {
@@ -61,6 +63,7 @@ namespace vpm
         public string RawXml;
         public bool Agreed = false;
         public List<string> Aliases = new List<string>();
+        public XmlNodeList NugetPackages;
         public List<VPack> Dependencies = new List<VPack>();
         
         public VPack(string name, string source, IEnumerable<string> aliases = null, XmlDocument srcxml = null)
@@ -99,7 +102,7 @@ namespace vpm
             {
                 RawXml = xmldoc.ToString();
                 var licensenode = xmldoc.SelectSingleNode("/vpack/meta/license");
-                LicenseUrl = licensenode != null ? licensenode.InnerText.Trim() : "http://www.imxprs.com/free/microdee/vpmnolicense";
+                LicenseUrl = licensenode?.InnerText.Trim() ?? "http://www.imxprs.com/free/microdee/vpmnolicense";
 
                 var namenode = xmldoc.SelectSingleNode("/vpack/meta/name");
                 if (namenode == null)
@@ -122,6 +125,12 @@ namespace vpm
                     throw new Exception("VPack doesn't contain installing script.");
                 }
                 InstallScript = installnode.InnerText;
+                
+                var nugetnode = xmldoc.SelectSingleNode("/vpack/nuget");
+                if (nugetnode != null)
+                {
+                    NugetPackages = nugetnode.ChildNodes;
+                }
 
                 var dependenciesnode = xmldoc.SelectSingleNode("/vpack/meta/dependencies");
                 if (dependenciesnode != null)
@@ -241,13 +250,61 @@ namespace vpm
             {
                 d.Install();
             }
+
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Installing " + Name);
+            Console.ResetColor();
+
             var vpmglobal = new VpmGlobals(this);
+            var assemblies = VpmConfig.Instance.ReferencedAssemblies;
+            if (NugetPackages != null && NugetPackages.Count > 0)
+            {
+                Console.WriteLine("Initializing Nuget for this pack");
+                var packdir = Path.Combine(TempDir, "NugetPackages");
+                Directory.CreateDirectory(packdir);
+                var repo = VpmConfig.Instance.DefaultNugetRepository;
+                var packman = new PackageManager(repo, packdir);
+                packman.PackageInstalled += (sender, args) =>
+                {
+                    Console.WriteLine("Installed " + args.Package.Id);
+                };
+                for (int i = 0; i < NugetPackages.Count; i++)
+                {
+                    var packnode = NugetPackages[i];
+                    Console.WriteLine("Installing Nuget Package " + packnode.InnerText);
+                    var version = packnode.Attributes?["version"]?.Value;
+                    
+                    var packages = repo.FindPackagesById(packnode.InnerText);
+                    IPackage package = null;
+                    foreach (var p in packages)
+                    {
+                        bool versioncheck = p.IsLatestVersion;
+                        if (version != null)
+                            versioncheck = SemanticVersion.Parse(version) == p.Version;
+
+                        if (versioncheck)
+                        {
+                            package = p;
+                            break;
+                        }
+                    }
+                    if (package == null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("No nuget package found with those conditions");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        packman.InstallPackage(package, false, true);
+                    }
+                }
+            }
             try
             {
                 CSharpScript.EvaluateAsync(InstallScript,
                     globals: vpmglobal,
-                    options: ScriptOptions.Default.WithReferences(VpmConfig.Instance.ReferencedAssemblies));
+                    options: ScriptOptions.Default.WithReferences(assemblies));
             }
             catch (CompilationErrorException e)
             {

@@ -28,6 +28,7 @@ namespace vpm
                 Console.ResetColor();
                 Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<VpmArgs>());
                 VpmUtils.CleanUp();
+                Environment.Exit(0);
             }
             try
             {
