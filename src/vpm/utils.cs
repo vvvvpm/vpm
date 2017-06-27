@@ -10,6 +10,7 @@ using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -77,6 +78,32 @@ namespace vpm
 
     public static class VpmUtils
     {
+        public static Task<T> StartSTATask<T>(Func<T> func)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            Thread thread = new Thread(() =>
+            {
+                try
+                {
+                    tcs.SetResult(func());
+                }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            return tcs.Task;
+        }
+
+        public static void Wait()
+        {
+            while (VpmConfig.Instance.WaitSignal)
+            {
+                Thread.Sleep(10);
+            }
+        }
         public static void ConsoleClearLine()
         {
             Console.SetCursorPosition(0, Math.Max(Console.CursorTop - 1, 0));

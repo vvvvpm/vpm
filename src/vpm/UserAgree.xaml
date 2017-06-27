@@ -10,7 +10,7 @@
             BorderThickness="0" 
             GlowBrush="Black"
             ResizeMode="CanResizeWithGrip"
-        Initialized="UserAgree_OnInitialized" Background="#FF2C2C2C" NonActiveWindowTitleBrush="#FF2C2C2C" OverrideDefaultWindowCommandsBrush="White" TitleForeground="White" WindowTitleBrush="#FF2C2C2C" Foreground="White">
+        Initialized="UserAgree_OnInitialized" Background="#FF2C2C2C" NonActiveWindowTitleBrush="#FF2C2C2C" OverrideDefaultWindowCommandsBrush="White" TitleForeground="White" WindowTitleBrush="#FF2C2C2C" Foreground="White" Closed="OnCancelled">
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
+using MahApps.Metro.Controls;
 using NuGet;
 using PowerArgs;
 
@@ -17,6 +20,8 @@ namespace vpm
         private IPackageRepository _defaultNugetRepository;
         public IPackageRepository DefaultNugetRepository => _defaultNugetRepository ??
             (_defaultNugetRepository = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2"));
+
+        public VpmArgs Arguments { get; set; }
 
         private string _vvvvarch;
         public string VVVVArcitecture
@@ -84,6 +89,8 @@ namespace vpm
         }
 
         private XmlDocument _openedpack;
+        public bool WaitSignal {get; set; }
+        public bool AgreementsAgreed { get; set; }
 
         public XmlDocument OpenedPackXml
         {
@@ -97,8 +104,37 @@ namespace vpm
                 return _openedpack;
             }
         }
-        public Application WinApp { get; set; }
+        public Application WinApp
+        {
+            get
+            {
+                if (_winApp == null)
+                {
+                    VpmConfig.Instance.WaitSignal = true;
+                    ApplicationTask = VpmUtils.StartSTATask<bool>(() =>
+                    {
+                        var winapp = _winApp = new Application();
+                        winapp.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                        winapp.Run();
+                        return true;
+                    });
+                    while (_winApp == null)
+                    {
+                        Thread.Sleep(10);
+                    }
+                }
+                return _winApp;
+            }
+            //set => _winApp = value;
+        }
+
+        private Application _winApp;
+        public Task ApplicationTask { get; set; }
+        
         public Window AgreeWindow { get; set; }
+
+        public Window DirWindow { get; set; }
+
         public List<VPack> _packlist = new List<VPack>();
         public List<VPack> PackList => _packlist;
         public bool InstallationCancelled = true;

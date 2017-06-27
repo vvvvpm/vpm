@@ -4,7 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Windows;
 using BrendanGrant.Helpers.FileAssociation;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using PowerArgs;
 

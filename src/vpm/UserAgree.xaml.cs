@@ -61,8 +61,9 @@ namespace vpm
         private void ContinueInstall_Click(object sender, RoutedEventArgs e)
         {
             VpmConfig.Instance.InstallationCancelled = false;
+            VpmConfig.Instance.WaitSignal = false;
+            VpmConfig.Instance.AgreementsAgreed = true;
             VpmConfig.Instance.AgreeWindow.Close();
-            VpmConfig.Instance.WinApp.Shutdown();
         }
 
         private void UserAgree_OnInitialized(object sender, EventArgs e)
@@ -159,6 +160,14 @@ namespace vpm
         {
             if ((bool)e.NewValue) AgreeAndInstall.Opacity = 1;
             else AgreeAndInstall.Opacity = 0.5;
+        }
+    
+        private void OnCancelled(object sender, EventArgs e)
+        {
+            VpmConfig.Instance.InstallationCancelled = true;
+            VpmConfig.Instance.WaitSignal = false;
+            VpmConfig.Instance.AgreementsAgreed = true;
+            VpmConfig.Instance.DirWindow.Close();
         }
     }
 }

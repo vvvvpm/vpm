@@ -1,0 +1,41 @@
+﻿<controls:MetroWindow x:Class="vpm.ChooseDir"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+             xmlns:local="clr-namespace:vpm"
+             mc:Ignorable="d" Height="96" Width="399"
+             BorderThickness="0" 
+             GlowBrush="Black"
+             ResizeMode="CanResizeWithGrip"
+             Initialized="ChooseDir_OnInitialized_OnInitialized"
+             Background="#FF2C2C2C"
+             NonActiveWindowTitleBrush="#FF2C2C2C"
+             OverrideDefaultWindowCommandsBrush="White"
+             TitleForeground="White"
+             WindowTitleBrush="#FF2C2C2C"
+             Foreground="White"
+             WindowStyle="ToolWindow" Closed="OnCancelled">
+    <controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <!-- Accent and AppTheme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </controls:MetroWindow.Resources>
+    <Grid>
+        <TextBox x:Name="DirBox" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="0,0,28,0" VerticalAlignment="Top" TabIndex="0" Drop="OnDirDrop"/>
+        <Button x:Name="PickButton" Content="..." HorizontalAlignment="Right" Width="28" Height="26" VerticalAlignment="Top" Click="OnBrowseDir"/>
+        <Button x:Name="OkButton" Content="OK" Margin="0,26,0,0" IsDefault="True" TabIndex="1" Click="OnConfirm"/>
+
+    </Grid>
+</controls:MetroWindow>
