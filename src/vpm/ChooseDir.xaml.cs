@@ -79,5 +79,10 @@ namespace vpm
             VpmConfig.Instance.WaitSignal = false;
             VpmConfig.Instance.DirWindow.Close();
         }
+
+        private void OnPrevDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }

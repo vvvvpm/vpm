@@ -33,7 +33,7 @@
         </ResourceDictionary>
     </controls:MetroWindow.Resources>
     <Grid>
-        <TextBox x:Name="DirBox" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="0,0,28,0" VerticalAlignment="Top" TabIndex="0" Drop="OnDirDrop"/>
+        <TextBox x:Name="DirBox" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="0,0,28,0" VerticalAlignment="Top" TabIndex="0" Drop="OnDirDrop" AllowDrop="True" PreviewDragOver="OnPrevDragOver"/>
         <Button x:Name="PickButton" Content="..." HorizontalAlignment="Right" Width="28" Height="26" VerticalAlignment="Top" Click="OnBrowseDir"/>
         <Button x:Name="OkButton" Content="OK" Margin="0,26,0,0" IsDefault="True" TabIndex="1" Click="OnConfirm"/>
 
