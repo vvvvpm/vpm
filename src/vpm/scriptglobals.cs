@@ -205,7 +205,14 @@ namespace vpm
                 }
             };
             var dltask = client.DownloadFileTaskAsync(src, dst);
-            dltask.Wait();
+            try
+            {
+                dltask.Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Problem with waiting for downloader. Skipping wait.");
+            }
             Console.ResetColor();
             Console.WriteLine("Done");
         }

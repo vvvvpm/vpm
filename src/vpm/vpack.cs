@@ -306,10 +306,20 @@ namespace vpm
                     globals: vpmglobal,
                     options: ScriptOptions.Default.WithReferences(assemblies));
             }
-            catch (CompilationErrorException e)
+            catch (Exception e)
             {
-                Console.WriteLine("Compilation error:");
-                Console.WriteLine(string.Join(Environment.NewLine, e.Diagnostics));
+                if (e is CompilationErrorException)
+                {
+                    var ee = (CompilationErrorException) e;
+                    Console.WriteLine("Compilation error:");
+                    Console.WriteLine(string.Join(Environment.NewLine, ee.Diagnostics));
+                }
+                else
+                {
+                    Console.WriteLine("Script error:");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                }
                 Console.WriteLine("Press any key to exit...");
                 Console.ReadKey(true);
                 VpmUtils.CleanUp();

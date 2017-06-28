@@ -64,6 +64,20 @@ namespace vpm
                         if (string.IsNullOrWhiteSpace(lass.Location)) continue;
                         _referencedAssemblies.Add(lass);
                     }
+                    var vpmfolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    foreach (var file in Directory.GetFiles(vpmfolder, "*.dll"))
+                    {
+                        Assembly ass;
+                        try
+                        {
+                            ass = Assembly.LoadFrom(file);
+                        }
+                        catch (Exception e)
+                        {
+                            continue;
+                        }
+                        _referencedAssemblies.Add(ass);
+                    }
                 }
                 return _referencedAssemblies;
             }
