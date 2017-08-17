@@ -122,6 +122,20 @@ namespace vpm
             Pack = currentPack;
         }
 
+        public void ThrowException(Exception e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Script thrown an Exception, contact the pack developer:");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(e.Message);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(e.StackTrace);
+            Console.WriteLine("");
+            Console.WriteLine("Pack is not installed most probably");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
         public void CopyDir(string srcdir, string dstdir, string[] ignore = null, string[] match = null)
         {
             Console.ForegroundColor = ConsoleColor.White;
