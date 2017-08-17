@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Xml;
@@ -51,7 +53,7 @@ namespace vpm
             Console.ResetColor();
         }
     }
-    public class VPack
+    public class VPack : MarshalByRefObject
     {
         public string Name;
         public string Author;
@@ -257,11 +259,12 @@ namespace vpm
 
             var vpmglobal = new VpmGlobals(this);
             var assemblies = VpmConfig.Instance.ReferencedAssemblies;
+            var nugetassemblies = new List<Assembly>();
             if (NugetPackages != null && NugetPackages.Count > 0)
             {
                 Console.WriteLine("Initializing Nuget for this pack");
                 var packdir = Path.Combine(TempDir, "NugetPackages");
-                Directory.CreateDirectory(packdir);
+                var packdirinfo = Directory.CreateDirectory(packdir);
                 var repo = VpmConfig.Instance.DefaultNugetRepository;
                 var packman = new PackageManager(repo, packdir);
                 packman.PackageInstalled += (sender, args) =>
@@ -299,12 +302,50 @@ namespace vpm
                         packman.InstallPackage(package, false, true);
                     }
                 }
+                var dlls = packdirinfo.EnumerateDirectories().Where(info => info.GetDirectories("lib").Length > 0).Select(packinfo =>
+                {
+                    var libdir = packinfo.GetDirectories("lib")[0];
+                    var netversion = libdir.EnumerateDirectories("net*").Max(libinfo =>
+                    {
+                        var regexc = new Regex(@"net(\d*?$)");
+                        var matches = regexc.Matches(libinfo.Name);
+                        if (matches.Count == 0) return 0;
+                        return int.Parse(matches[0].Groups[1].Value);
+                    });
+                    return libdir.GetDirectories("net" + netversion)[0].GetFiles("*.dll");
+                });
+                foreach (var fileInfos in dlls)
+                {
+                    foreach (var file in fileInfos)
+                    {
+                        try
+                        {
+                            var ass = Assembly.LoadFrom(file.FullName);
+                            Console.WriteLine("Loaded assembly " + file.Name);
+                            if (!(assemblies.Contains(ass) || nugetassemblies.Contains(ass)))
+                            {
+                                nugetassemblies.Add(ass);
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
             }
             try
             {
-                CSharpScript.EvaluateAsync(InstallScript,
-                    globals: vpmglobal,
-                    options: ScriptOptions.Default.WithReferences(assemblies));
+                if (VpmConfig.Instance.Arguments.UseEmbeddedScript)
+                {
+                    ScriptDebug.SelectedDebugScript(vpmglobal);
+                }
+                else
+                {
+                    CSharpScript.EvaluateAsync(InstallScript,
+                        globals: vpmglobal,
+                        options: ScriptOptions.Default.WithReferences(assemblies.Concat(nugetassemblies)));
+                }
             }
             catch (Exception e)
             {

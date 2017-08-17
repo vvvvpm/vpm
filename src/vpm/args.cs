@@ -178,5 +178,9 @@ vpm(s):// URL's are coming here too")]
         [ArgDescription("Not asking questions.")]
         [ArgShortcut("-q")]
         public bool Quiet { get; set; }
+
+        [ArgDescription("Use prebuilt script and ignore the one from vpack. Use only for script debugging!")]
+        [ArgShortcut("-embeddedscript")]
+        public bool UseEmbeddedScript { get; set; }
     }
 }

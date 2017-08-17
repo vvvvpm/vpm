@@ -252,6 +252,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ScriptDebug.cs" />
     <Compile Include="UserAgree.xaml.cs">
       <DependentUpon>UserAgree.xaml</DependentUpon>
     </Compile>

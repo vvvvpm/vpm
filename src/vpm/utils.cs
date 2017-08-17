@@ -94,6 +94,7 @@ namespace vpm
             });
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
+            VpmConfig.Instance.ApplicationThread = thread;
             return tcs.Task;
         }
 
@@ -132,6 +133,8 @@ namespace vpm
             Console.WriteLine("Removing vpm temp folder.");
             File.SetAttributes(tempdir, FileAttributes.Normal);
             PatientDeleteDirectory(tempdir, true, 0, 3);
+            Console.WriteLine("Killing GUI");
+            VpmConfig.Instance.ApplicationThread.Abort();
         }
 
         public static void PatientDeleteDirectory(string path, bool recursive, int currtry, int maxtry)

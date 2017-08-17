@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PowerArgs;
 using SharpCompress.Archives;
 using SharpCompress.Common;
@@ -94,19 +95,19 @@ namespace vpm
             }
         }
     }
-    public class VpmVVVV
+    public class VpmVVVV : MarshalByRefObject
     {
         public string Dir => Args.GetAmbientArgs<VpmArgs>().VVVVDir;
         public string Exe => Path.Combine(Args.GetAmbientArgs<VpmArgs>().VVVVDir, "vvvv.exe");
         public string Architecture => VpmConfig.Instance.VVVVArcitecture;
     }
 
-    public class VpmEnv
+    public class VpmEnv : MarshalByRefObject
     {
         public string Exe => Assembly.GetExecutingAssembly().Location;
         public string TempDir => VpmConfig.Instance.VpmTempDir;
     }
-    public class VpmGlobals
+    public class VpmGlobals : MarshalByRefObject
     {
         private VpmVVVV _vvvv;
         public VpmVVVV VVVV => _vvvv ?? (_vvvv = new VpmVVVV());

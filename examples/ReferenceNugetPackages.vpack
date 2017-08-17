@@ -4,8 +4,7 @@
 		<author>microdee</author>
 	</meta>
 	<nuget>
-		<package version="10.0.2">Newtonsoft.Json</package>
-		<package>EntityFramework</package>
+		<package version="0.24.0">Octokit.Reactive</package>
 	</nuget>
 	<install>
 		using System;

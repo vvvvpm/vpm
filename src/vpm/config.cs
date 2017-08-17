@@ -144,7 +144,8 @@ namespace vpm
 
         private Application _winApp;
         public Task ApplicationTask { get; set; }
-        
+        public Thread ApplicationThread { get; set; }
+
         public Window AgreeWindow { get; set; }
 
         public Window DirWindow { get; set; }
