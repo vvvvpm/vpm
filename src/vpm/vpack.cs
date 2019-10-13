@@ -16,43 +16,6 @@ using NuGet;
 
 namespace vpm
 {
-    public class JsVPackInterop
-    {
-        public VPack CurrentPack;
-        public UserAgree UserAgreeWindow;
-
-        public string GetPackXml()
-        {
-            return CurrentPack.RawXml;
-        }
-
-        public void Continue(string data)
-        {
-            SetInstallData(data);
-            UserAgreeWindow.ContinueFromJS();
-        }
-        public void SetInstallData(string data)
-        {
-            CurrentPack.InstallDataFromJS = data;
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("Licensing page passed data for the installation script.");
-            Console.ResetColor();
-        }
-        public void DisableAgree()
-        {
-            UserAgreeWindow.DisableAgree();
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("Licensing page Disabled the \"Agree\" checkbox.");
-            Console.ResetColor();
-        }
-        public void EnableAgree()
-        {
-            UserAgreeWindow.EnableAgree();
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("Licensing page Enabled the \"Agree\" checkbox.");
-            Console.ResetColor();
-        }
-    }
     public class VPack : MarshalByRefObject
     {
         public string Name;

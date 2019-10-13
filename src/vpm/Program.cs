@@ -116,26 +116,19 @@ namespace vpm
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Initialization complete.");
                 Console.ResetColor();
-                
-                VpmConfig.Instance.WinApp.BeginInvoke(() =>
-                {
-                    var winapp = VpmConfig.Instance.WinApp;
-                    var window = VpmConfig.Instance.AgreeWindow = new UserAgree();
-                    winapp.MainWindow = window;
-                    window.Show();
-                });
-                while (!VpmConfig.Instance.AgreementsAgreed)
-                {
-                    Thread.Sleep(10);
-                }
 
-                if (VpmConfig.Instance.InstallationCancelled)
+                if (!VpmConfig.Instance.Arguments.Quiet)
                 {
-                    VpmUtils.CleanUp();
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Installation is canceled");
-                    Thread.Sleep(5000);
-                    Environment.Exit(0);
+
+                    if (!VpmUtils.PromptYayOrNay(
+                        "Vpm does not ask individual licenses anymore. " +
+                        "It is the user's responsibility to know and fully comply with the licenses " +
+                        "of the currently installed pack and all of its dependencies.\n" +
+                        "Do you agree?"))
+                    {
+                        VpmUtils.CleanUp();
+                        Environment.Exit(0);
+                    }
                 }
 
                 vpack.Install();

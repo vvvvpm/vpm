@@ -3,10 +3,9 @@
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:vpm"
-             mc:Ignorable="d" Height="96" Width="399"
+             mc:Ignorable="d" Height="173" Width="399"
              BorderThickness="0" 
              GlowBrush="Black"
              ResizeMode="CanResizeWithGrip"
@@ -33,9 +32,18 @@
         </ResourceDictionary>
     </controls:MetroWindow.Resources>
     <Grid>
-        <TextBox x:Name="DirBox" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="0,0,28,0" VerticalAlignment="Top" TabIndex="0" Drop="OnDirDrop" AllowDrop="True" PreviewDragOver="OnPrevDragOver"/>
-        <Button x:Name="PickButton" Content="..." HorizontalAlignment="Right" Width="28" Height="26" VerticalAlignment="Top" Click="OnBrowseDir"/>
-        <Button x:Name="OkButton" Content="OK" Margin="0,26,0,0" IsDefault="True" TabIndex="1" Click="OnConfirm"/>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="37"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="DirBox" Height="26" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" TabIndex="0" Drop="OnDirDrop" AllowDrop="True" PreviewDragOver="OnPrevDragOver" Grid.ColumnSpan="2"/>
+        <Button x:Name="PickButton" Content="Browse" Click="OnBrowseDir" Grid.Column="1" Grid.Row="1" Margin="6,0,0,0"/>
+        <Button x:Name="OkButton" Content="OK" IsDefault="True" TabIndex="1" Click="OnConfirm" Grid.Row="1" Margin="0,0,6,0"/>
+        <TextBlock Margin="10,31,10,0" TextWrapping="Wrap" Text="The destination folder above is already determined from the registry, if Setup.exe of VVVV associated .v4p files at least once on this computer. If you'd like to use a different folder you can Browse, Drag the folder from Explorer or just Write above." Grid.ColumnSpan="2"/>
 
     </Grid>
 </controls:MetroWindow>
